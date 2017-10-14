@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SupplyCat</title>
+	<link rel="icon" href="{% static 'logo_kvadraten_majhen.png' %}">
+</head>
+<body>
+	<div id = "titleline">
+		<img src="{% static 'logo_blue_napis.png' %}" width="18%;">
+	</div>
+	{% if categories %}
+	    <ul>
+	    {% for c in categories %}
+	        <h5>{{ c.category }}</h5>
+	    {% endfor %}
+	    </ul>
+	{% else %}
+	    <p>No categories are available.</p>
+	{% endif %}
+
+	{% if menu %}
+	    <ul>
+	    {% for m in menu %}
+	        <h5>{{ m.item }}</h5>
+	    {% endfor %}
+	    </ul>
+	{% else %}
+	    <p>No menu items are available.</p>
+	{% endif %}
+
+	{% if demand %}
+	    <ul>
+	    {% for d in demand %}
+	        <h5>{{ d.supply }}</h5>
+	    {% endfor %}
+	    </ul>
+	{% else %}
+	    <p>No demand info is available.</p>
+	{% endif %}
+</body>
+</html>
