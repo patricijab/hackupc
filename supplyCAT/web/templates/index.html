@@ -4,10 +4,63 @@
 <head>
 	<title>SupplyCat</title>
 	<link rel="icon" href="{% static 'logo_kvadraten_majhen.png' %}">
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script src="{%static 'script.js' %}"></script>
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="{%static 'style.css' %}">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
+
 <body>
-	<div id = "titleline">
-		<img src="{% static 'logo_blue_napis.png' %}" width="18%;">
+	<body background="{% static 'Untitled-1.png' %}">
+	<div id="mySidenav" class="sidenav">
+	  <div align="center"><img src="{% static 'logo_blue_napis.png' %}" style="width: 60%;">
+	  	<br><br><br>
+	  <a href="#" id="st" onclick="on_stat()" class="dark">Statistics</a>
+	  <a href="#" id="pl" onclick="on_plan()" class="color">Plan</a>
+	  <a href="#" id="re" onclick="on_report()" class="color">Report</a>
+	</div>
+
+	<div id="main">
+	    <div id="Statistics" align="center" style="white-space: nowrap; overflow-x: scroll;" class="overlay_content2">
+	    	<div id="chart_div" style="width: 90%;"></div>
+	    	<div id="chart_div2" style="width: 90%; margin-top: 10px;"></div>
+	    	<div id="chart_div3" style="width: 90%; margin-top: 10px;"></div>
+	        {% for c in clothes %}
+	            <div style="display:inline-block; min-width: 35%; background-color: white; margin: 5px; padding: 5px; margin-top: 6%;">
+	                <div style="text-decoration-color: #34AE95; white-space: initial;">{{c.name}}</div>
+	                <img src="{{c.imageURL}}"/>
+	            </div>
+	        {% endfor %}
+	    </div>
+	    <div id="Plan" align="center" style="white-space: nowrap; overflow-x: scroll;" class="overlay_content">
+	        {% for r in recommendations %}
+	            <div style="display:inline-block; min-width: 35%; background-color: white; margin: 5px; padding: 5px; margin-top: 6%;">
+	                <div style="text-decoration-color: #34AE95; white-space: initial;">{{r.name}}</div>
+	                <div><img src="{{r.imageURL}}"/></div>
+	                <a href="{% url 'addCloset' r.id %}"> <button onclick="window.open('{{r.productURL}}')" id="{{r.productURL}}" style="margin: 5px; border-radius: 4px; background-color: #34AE95; border:0px solid #34AE95;" >BUY</button></a>
+	                <button id="{{r.sku}}" style="margin: 5px; border-radius: 4px; background-color: #34AE95; border:0px solid #34AE95;" onclick="similar_button('{{r.SKUcode}}'); div_show('pop1')">SHOW SIMILAR</button>
+	            </div>
+	        {% endfor %}
+	    </div>
+	    <div id="Report" class="overlay_content">
+	        <div align="center" style="white-space: nowrap; overflow-x: scroll;">
+	        {% for i in inspirations %}
+	            <div style="display:inline-block; min-width: 35%; background-color: white; margin: 5px; padding: 5px; margin-top: 6%;">
+	                <img src=" {{i.image}}" style="height: 200px;"/>
+	                <div><button class="style_me_button" id="{{i.id}}" style="margin: 5px; border-radius: 4px; background-color: #34AE95; border:0px solid #34AE95;" onclick="style_me_button('{{i.image}}'); div_show('pop2')">STYLE ME LIKE THIS</button></div>
+	            </div>
+	        {% endfor %}
+	        </div>
+	        <div style="margin: 5px;">
+	            <form method="post" enctype="multipart/form-data" novalidate>
+	                {% csrf_token %}
+	                {{ form.label }}
+	                {{ form.image }}
+	            <input type="submit" value="ADD INSPIRATION" style="margin: 5px; border-radius: 4px; background-color: #34AE95; border:0px solid #34AE95;" /> 
+	            </form>
+	        </div>
+	    </div>
 	</div>
 	{% if categories %}
 	    <ul>
