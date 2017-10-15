@@ -1,0 +1,219 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SupplyCat</title>
+	<link rel="icon" href="{% static 'logo_kvadraten_majhen.png' %}">
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script src="{%static 'script.js' %}"></script>
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="{%static 'style.css' %}">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+	<body background="{% static 'Untitled-1.png' %}">
+	<div id="mySidenav" class="sidenav">
+	  <div align="center"><img src="{% static 'logo_blue_napis.png' %}" style="width: 60%;">
+	  	<br><br><br>
+	  <a href="#" id="st" onclick="on_stat()" class="dark">Statistics</a>
+	  <a href="#" id="pl" onclick="on_plan()" class="color">Plan</a>
+	  <a href="#" id="re" onclick="on_report()" class="color">Report</a>
+	</div>
+
+	<div id="main">
+	    <div id="Statistics" align="center" style="white-space: nowrap; overflow-x: scroll;" class="overlay_content2">
+	    	<div id="chart_div" style="width: 90%;"></div>
+	    	<div id="chart_div2" style="width: 90%; margin-top: 10px;"></div>
+	    	<div id="chart_div3" style="width: 90%; margin-top: 10px;"></div>
+	    </div>
+	    <div id="Plan" align="center" style="white-space: nowrap; overflow-x: scroll; top: 30%;" class="overlay_content">
+	    	<select id="planId">
+			  <option value="0">daily supply</option>
+			  <option value="1">weekly supply</option>
+			  <option value="2">monthly supply</option>
+			</select>
+	    	<div id="table_div" align="center" style="width: 80%; margin-top: 10px; font-size:30px; text-align: center;"></div>
+	    </div>
+	    <div id="Report" align="center" class="overlay_content" style="top: 30%;">
+	    	<h3>Add a new demand report for prediction</h3>
+	    	<form action="{% url 'index' %}" id="form1" method="post" name="form">
+	    	{% csrf_token %}
+		    	<select id="itemId" name="itemId">
+		    		{% for i in menu %}
+				  <option value="{{ i.pk }}">{{ i.item }}</option>
+				    {% endfor %}
+				</select>
+				<select id="weekD" name="weekD">
+				  <option value="0">Monday</option>
+				  <option value="1">Tuesday</option>
+				  <option value="2">Wednesday</option>
+				  <option value="3">Thursday</option>
+				  <option value="4">Friday</option>
+				  <option value="5">Saturday</option>
+				  <option value="6">Sunday/Holiday</option>
+				</select>
+				<select id="mon" name="mon">
+				  <option value="1">January</option>
+				  <option value="2">February</option>
+				  <option value="3">March</option>
+				  <option value="4">April</option>
+				  <option value="5">May</option>
+				  <option value="6">June</option>
+				  <option value="7">July</option>
+				  <option value="8">August</option>
+				  <option value="9">September</option>
+				  <option value="10">October</option>
+				  <option value="11">November</option>
+				  <option value="12">December</option>
+				</select>
+				<select id="hou" name="hou">
+				  <option value="7">7</option>
+				  <option value="8">8</option>
+				  <option value="9">9</option>
+				  <option value="10">10</option>
+				  <option value="11">11</option>
+				  <option value="12">12</option>
+				  <option value="13">13</option>
+				  <option value="14">14</option>
+				  <option value="15">15</option>
+				  <option value="16">16</option>
+				  <option value="17">17</option>
+				  <option value="18">18</option>
+				  <option value="19">19</option>
+				  <option value="20">20</option>
+				  <option value="21">21</option>
+				  <option value="22">22</option>
+				</select>
+				<input type="number" name="supply" placeholder="items ordered">
+				<input type="submit" name="addEntry" value="addEntry">
+			</form>
+	    </div>
+	</div>
+</body>
+
+<script>
+
+google.charts.load('current', {'packages':['corechart', 'table']});
+google.charts.setOnLoadCallback(drawMonths);
+google.charts.setOnLoadCallback(drawDays);
+google.charts.setOnLoadCallback(drawHours);
+var planId = 0;
+google.charts.setOnLoadCallback(drawPlan);
+
+var context = JSON.parse("{{ data2|escapejs }}");
+console.log(context);
+
+var months = [
+	  ['Month',  'Croissant', 'Muffin', 'Capuccino', 'Sandwich', 'Tea', 'Juice', 'Toast', 'Water', 'Cafe Latte', 'Espresso'],
+	  ['Jan'], ['Feb'], ['Mar'], ['Apr'], ['May'], ['Jun'], ['Jul'], ['Aug'], ['Sep'], ['Oct'], ['Nov'], ['Dec']
+	];
+
+var days = [ ['Day',  'Croissant', 'Muffin', 'Capuccino', 'Sandwich', 'Tea', 'Juice', 'Toast', 'Water', 'Cafe Latte', 'Espresso'],
+	  ['Mon'], ['Tue'], ['Wed'], ['Thu'], ['Fri'], ['Sat'], ['Sun/Holiday']];
+
+var hours = [ ['Hour', 'Croissant', 'Muffin', 'Capuccino', 'Sandwich', 'Tea', 'Juice', 'Toast', 'Water', 'Cafe Latte', 'Espresso'],
+	  ['07'], ['08'], ['09'], ['10'], ['11'], ['12'], ['13'], ['14'], ['15'], ['16'], ['17'], ['18'], ['19'], ['20'], ['21'], ['22']];
+
+fillVars();
+function fillVars() {
+	//months
+	for (var i = 1; i < 11; i++) {
+		for (var j = 1; j <= 12; j++) {
+			months[j].push(context[months[0][i]][0][j-1]);
+		}
+	}
+
+	//days
+	for (var i = 1; i < 11; i++) {
+		for (var j = 1; j <= 7; j++) {
+			days[j].push(context[days[0][i]][1][j-1]);
+		}
+	}
+	console.log(days);
+
+	//hours
+	for (var i = 1; i < 11; i++) {
+		for (var j = 1; j <= 16; j++) {
+			hours[j].push(context[hours[0][i]][2][j-1]);
+		}
+	}
+}
+
+document.getElementById("planId").addEventListener("change", function() {
+	planId = document.getElementById("planId").value;
+    google.charts.setOnLoadCallback(drawPlan);
+});
+function drawPlan() {
+	var context2 = JSON.parse("{{ prediction|escapejs }}");
+	console.log(context2);
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Menu item');
+	data.addColumn('number', 'Items required');
+	var items = ['Croissant', 'Muffin', 'Capuccino', 'Sandwich', 'Tea', 'Juice', 'Toast', 'Water', 'Cafe Latte', 'Espresso'];
+	var rows = [];
+	for (var i = 0; i < 10; i++) {
+		rows.push([items[i], context2[items[i]][planId]]);
+	}
+	console.log(rows);
+	data.addRows(rows);
+	var table = new google.visualization.Table(document.getElementById('table_div'));
+	table.draw(data, {showRowNumber: true, width: '100%'});
+}
+
+function drawMonths() {
+	var data = google.visualization.arrayToDataTable(months);
+
+	var options = {
+	  title: 'Demand by months',
+	  height: 370,
+	  isStacked: true,
+	  vAxis: {minValue: 0},
+	  connectSteps: false,
+      colors: ['#34AC94', '#46D3C2', '#3DBBE2', '#04AA53', '#2670DB', '#995EE5', '#5EE55E', '#B26AEA', '#2638DB', '#1010B2'],
+      legend: { position: 'bottom', maxLines: 2}
+	};
+
+	var chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div'));
+
+	chart.draw(data, options);
+}
+
+function drawDays() {
+	var data = google.visualization.arrayToDataTable(days);
+
+	var options = {
+	  title: 'Demand by week days & holidays',
+	  isStacked: true,
+	  height: 370,
+	  vAxis: {minValue: 0},
+	  connectSteps: false,
+      colors: ['#34AC94', '#46D3C2', '#3DBBE2', '#04AA53', '#2670DB', '#995EE5', '#5EE55E', '#B26AEA', '#2638DB', '#1010B2'],
+      legend: { position: 'bottom', maxLines: 2}
+	};
+
+	var chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div2'));
+
+	chart.draw(data, options);
+}
+
+function drawHours() {
+	var data = google.visualization.arrayToDataTable(hours);
+
+	var options = {
+	  title: 'Demand by hour of day',
+	  curveType: 'function',
+	  height: 370,
+	  vAxis: {minValue: 0},
+	  connectSteps: false,
+      colors: ['#34AC94', '#46D3C2', '#3DBBE2', '#04AA53', '#2670DB', '#995EE5', '#5EE55E', '#B26AEA', '#2638DB', '#1010B2'],
+      legend: { position: 'bottom', maxLines: 2},
+      explorer: { keepInBounds: true }
+	};
+
+	var chart = new google.visualization.LineChart(document.getElementById('chart_div3'));
+
+	chart.draw(data, options);
+}
+</script>
+</html>
