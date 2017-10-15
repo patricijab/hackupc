@@ -131,7 +131,19 @@ def prediction():
 		result.append(ss)
 	return result
 
+def addEntry(request):
+	itemId = request.POST.get('itemId')
+	hour = request.POST.get('hou')
+	month = request.POST.get('mon')
+	weekD = request.POST.get('weekD')
+	supply = request.POST['supply']
+	t2 = Demand(itemId = MenuItem.objects.get(pk=itemId), month=month, hour=hour, dayType=weekD, supply=supply)
+	if t2 is not None:
+		t2.save()
+
 def index(request):
+	if 'addEntry' in request.POST:
+		addEntry(request)
 	category_list = Category.objects.all()
 	menu = MenuItem.objects.all()
 	demand = list(Demand.objects.all())

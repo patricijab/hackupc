@@ -27,7 +27,7 @@
 	    	<div id="chart_div2" style="width: 90%; margin-top: 10px;"></div>
 	    	<div id="chart_div3" style="width: 90%; margin-top: 10px;"></div>
 	    </div>
-	    <div id="Plan" align="center" style="white-space: nowrap; overflow-x: scroll;" class="overlay_content">
+	    <div id="Plan" align="center" style="white-space: nowrap; overflow-x: scroll; top: 30%;" class="overlay_content">
 	    	<select id="planId">
 			  <option value="0">daily supply</option>
 			  <option value="1">weekly supply</option>
@@ -35,12 +35,65 @@
 			</select>
 	    	<div id="table_div" align="center" style="width: 80%; margin-top: 10px; font-size:30px; text-align: center;"></div>
 	    </div>
-	    <div id="Report" class="overlay_content">
+	    <div id="Report" align="center" class="overlay_content" style="top: 30%;">
+	    	<h3>Add a new demand report for prediction</h3>
+	    	<form action="{% url 'index' %}" id="form1" method="post" name="form">
+	    	{% csrf_token %}
+		    	<select id="itemId" name="itemId">
+		    		{% for i in menu %}
+				  <option value="{{ i.pk }}">{{ i.item }}</option>
+				    {% endfor %}
+				</select>
+				<select id="weekD" name="weekD">
+				  <option value="0">Monday</option>
+				  <option value="1">Tuesday</option>
+				  <option value="2">Wednesday</option>
+				  <option value="3">Thursday</option>
+				  <option value="4">Friday</option>
+				  <option value="5">Saturday</option>
+				  <option value="6">Sunday/Holiday</option>
+				</select>
+				<select id="mon" name="mon">
+				  <option value="1">January</option>
+				  <option value="2">February</option>
+				  <option value="3">March</option>
+				  <option value="4">April</option>
+				  <option value="5">May</option>
+				  <option value="6">June</option>
+				  <option value="7">July</option>
+				  <option value="8">August</option>
+				  <option value="9">September</option>
+				  <option value="10">October</option>
+				  <option value="11">November</option>
+				  <option value="12">December</option>
+				</select>
+				<select id="hou" name="hou">
+				  <option value="7">7</option>
+				  <option value="8">8</option>
+				  <option value="9">9</option>
+				  <option value="10">10</option>
+				  <option value="11">11</option>
+				  <option value="12">12</option>
+				  <option value="13">13</option>
+				  <option value="14">14</option>
+				  <option value="15">15</option>
+				  <option value="16">16</option>
+				  <option value="17">17</option>
+				  <option value="18">18</option>
+				  <option value="19">19</option>
+				  <option value="20">20</option>
+				  <option value="21">21</option>
+				  <option value="22">22</option>
+				</select>
+				<input type="number" name="supply" placeholder="items ordered">
+				<input type="submit" name="addEntry" value="addEntry">
+			</form>
 	    </div>
 	</div>
 </body>
 
 <script>
+
 google.charts.load('current', {'packages':['corechart', 'table']});
 google.charts.setOnLoadCallback(drawMonths);
 google.charts.setOnLoadCallback(drawDays);
