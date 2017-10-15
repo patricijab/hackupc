@@ -26,70 +26,141 @@
 	    	<div id="chart_div" style="width: 90%;"></div>
 	    	<div id="chart_div2" style="width: 90%; margin-top: 10px;"></div>
 	    	<div id="chart_div3" style="width: 90%; margin-top: 10px;"></div>
-	        {% for c in clothes %}
-	            <div style="display:inline-block; min-width: 35%; background-color: white; margin: 5px; padding: 5px; margin-top: 6%;">
-	                <div style="text-decoration-color: #34AE95; white-space: initial;">{{c.name}}</div>
-	                <img src="{{c.imageURL}}"/>
-	            </div>
-	        {% endfor %}
 	    </div>
 	    <div id="Plan" align="center" style="white-space: nowrap; overflow-x: scroll;" class="overlay_content">
-	        {% for r in recommendations %}
-	            <div style="display:inline-block; min-width: 35%; background-color: white; margin: 5px; padding: 5px; margin-top: 6%;">
-	                <div style="text-decoration-color: #34AE95; white-space: initial;">{{r.name}}</div>
-	                <div><img src="{{r.imageURL}}"/></div>
-	                <a href="{% url 'addCloset' r.id %}"> <button onclick="window.open('{{r.productURL}}')" id="{{r.productURL}}" style="margin: 5px; border-radius: 4px; background-color: #34AE95; border:0px solid #34AE95;" >BUY</button></a>
-	                <button id="{{r.sku}}" style="margin: 5px; border-radius: 4px; background-color: #34AE95; border:0px solid #34AE95;" onclick="similar_button('{{r.SKUcode}}'); div_show('pop1')">SHOW SIMILAR</button>
-	            </div>
-	        {% endfor %}
+	    	<select id="planId">
+			  <option value="0">daily supply</option>
+			  <option value="1">weekly supply</option>
+			  <option value="2">monthly supply</option>
+			</select>
+	    	<div id="table_div" align="center" style="width: 80%; margin-top: 10px; font-size:30px; text-align: center;"></div>
 	    </div>
 	    <div id="Report" class="overlay_content">
-	        <div align="center" style="white-space: nowrap; overflow-x: scroll;">
-	        {% for i in inspirations %}
-	            <div style="display:inline-block; min-width: 35%; background-color: white; margin: 5px; padding: 5px; margin-top: 6%;">
-	                <img src=" {{i.image}}" style="height: 200px;"/>
-	                <div><button class="style_me_button" id="{{i.id}}" style="margin: 5px; border-radius: 4px; background-color: #34AE95; border:0px solid #34AE95;" onclick="style_me_button('{{i.image}}'); div_show('pop2')">STYLE ME LIKE THIS</button></div>
-	            </div>
-	        {% endfor %}
-	        </div>
-	        <div style="margin: 5px;">
-	            <form method="post" enctype="multipart/form-data" novalidate>
-	                {% csrf_token %}
-	                {{ form.label }}
-	                {{ form.image }}
-	            <input type="submit" value="ADD INSPIRATION" style="margin: 5px; border-radius: 4px; background-color: #34AE95; border:0px solid #34AE95;" /> 
-	            </form>
-	        </div>
 	    </div>
 	</div>
-	{% if categories %}
-	    <ul>
-	    {% for c in categories %}
-	        <h5>{{ c.category }}</h5>
-	    {% endfor %}
-	    </ul>
-	{% else %}
-	    <p>No categories are available.</p>
-	{% endif %}
-
-	{% if menu %}
-	    <ul>
-	    {% for m in menu %}
-	        <h5>{{ m.item }}</h5>
-	    {% endfor %}
-	    </ul>
-	{% else %}
-	    <p>No menu items are available.</p>
-	{% endif %}
-
-	{% if demand %}
-	    <ul>
-	    {% for d in demand %}
-	        <h5>{{ d.supply }}</h5>
-	    {% endfor %}
-	    </ul>
-	{% else %}
-	    <p>No demand info is available.</p>
-	{% endif %}
 </body>
+
+<script>
+google.charts.load('current', {'packages':['corechart', 'table']});
+google.charts.setOnLoadCallback(drawMonths);
+google.charts.setOnLoadCallback(drawDays);
+google.charts.setOnLoadCallback(drawHours);
+var planId = 0;
+google.charts.setOnLoadCallback(drawPlan);
+
+var context = JSON.parse("{{ data2|escapejs }}");
+console.log(context);
+
+var months = [
+	  ['Month',  'Croissant', 'Muffin', 'Capuccino', 'Sandwich', 'Tea', 'Juice', 'Toast', 'Water', 'Cafe Latte', 'Espresso'],
+	  ['Jan'], ['Feb'], ['Mar'], ['Apr'], ['May'], ['Jun'], ['Jul'], ['Aug'], ['Sep'], ['Oct'], ['Nov'], ['Dec']
+	];
+
+var days = [ ['Day',  'Croissant', 'Muffin', 'Capuccino', 'Sandwich', 'Tea', 'Juice', 'Toast', 'Water', 'Cafe Latte', 'Espresso'],
+	  ['Mon'], ['Tue'], ['Wed'], ['Thu'], ['Fri'], ['Sat'], ['Sun/Holiday']];
+
+var hours = [ ['Hour', 'Croissant', 'Muffin', 'Capuccino', 'Sandwich', 'Tea', 'Juice', 'Toast', 'Water', 'Cafe Latte', 'Espresso'],
+	  ['07'], ['08'], ['09'], ['10'], ['11'], ['12'], ['13'], ['14'], ['15'], ['16'], ['17'], ['18'], ['19'], ['20'], ['21'], ['22']];
+
+fillVars();
+function fillVars() {
+	//months
+	for (var i = 1; i < 11; i++) {
+		for (var j = 1; j <= 12; j++) {
+			months[j].push(context[months[0][i]][0][j-1]);
+		}
+	}
+
+	//days
+	for (var i = 1; i < 11; i++) {
+		for (var j = 1; j <= 7; j++) {
+			days[j].push(context[days[0][i]][1][j-1]);
+		}
+	}
+	console.log(days);
+
+	//hours
+	for (var i = 1; i < 11; i++) {
+		for (var j = 1; j <= 16; j++) {
+			hours[j].push(context[hours[0][i]][2][j-1]);
+		}
+	}
+}
+
+document.getElementById("planId").addEventListener("change", function() {
+	planId = document.getElementById("planId").value;
+    google.charts.setOnLoadCallback(drawPlan);
+});
+function drawPlan() {
+	var context2 = JSON.parse("{{ prediction|escapejs }}");
+	console.log(context2);
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Menu item');
+	data.addColumn('number', 'Items required');
+	var items = ['Croissant', 'Muffin', 'Capuccino', 'Sandwich', 'Tea', 'Juice', 'Toast', 'Water', 'Cafe Latte', 'Espresso'];
+	var rows = [];
+	for (var i = 0; i < 10; i++) {
+		rows.push([items[i], context2[items[i]][planId]]);
+	}
+	console.log(rows);
+	data.addRows(rows);
+	var table = new google.visualization.Table(document.getElementById('table_div'));
+	table.draw(data, {showRowNumber: true, width: '100%'});
+}
+
+function drawMonths() {
+	var data = google.visualization.arrayToDataTable(months);
+
+	var options = {
+	  title: 'Demand by months',
+	  height: 370,
+	  isStacked: true,
+	  vAxis: {minValue: 0},
+	  connectSteps: false,
+      colors: ['#34AC94', '#46D3C2', '#3DBBE2', '#04AA53', '#2670DB', '#995EE5', '#5EE55E', '#B26AEA', '#2638DB', '#1010B2'],
+      legend: { position: 'bottom', maxLines: 2}
+	};
+
+	var chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div'));
+
+	chart.draw(data, options);
+}
+
+function drawDays() {
+	var data = google.visualization.arrayToDataTable(days);
+
+	var options = {
+	  title: 'Demand by week days & holidays',
+	  isStacked: true,
+	  height: 370,
+	  vAxis: {minValue: 0},
+	  connectSteps: false,
+      colors: ['#34AC94', '#46D3C2', '#3DBBE2', '#04AA53', '#2670DB', '#995EE5', '#5EE55E', '#B26AEA', '#2638DB', '#1010B2'],
+      legend: { position: 'bottom', maxLines: 2}
+	};
+
+	var chart = new google.visualization.SteppedAreaChart(document.getElementById('chart_div2'));
+
+	chart.draw(data, options);
+}
+
+function drawHours() {
+	var data = google.visualization.arrayToDataTable(hours);
+
+	var options = {
+	  title: 'Demand by hour of day',
+	  curveType: 'function',
+	  height: 370,
+	  vAxis: {minValue: 0},
+	  connectSteps: false,
+      colors: ['#34AC94', '#46D3C2', '#3DBBE2', '#04AA53', '#2670DB', '#995EE5', '#5EE55E', '#B26AEA', '#2638DB', '#1010B2'],
+      legend: { position: 'bottom', maxLines: 2},
+      explorer: { keepInBounds: true }
+	};
+
+	var chart = new google.visualization.LineChart(document.getElementById('chart_div3'));
+
+	chart.draw(data, options);
+}
+</script>
 </html>

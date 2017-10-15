@@ -18,4 +18,4 @@ class Demand(models.Model):
 	dayType = models.IntegerField(default=0) #0-M, 1-T, 2-W, 3-T, 4-F, 5-S, 6-S/holiday
 	supply = models.IntegerField(default=0)
 	def __str__(self):
-		return self.supply
+		return str(self.supply)
